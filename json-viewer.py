@@ -1,12 +1,18 @@
 import json
 import os
 import msvcrt
+import requests
 
 tree_state = {}
 
-def load_json_file(filename):  # Load JSON data from a file.
-    with open(filename, 'r') as file:
-        return json.load(file)
+def load_json_file(filename):  # Load JSON data from a local file or a URL.
+    if filename.startswith('http://') or filename.startswith('https://'):
+        response = requests.get(filename)
+        response.raise_for_status()  # Raise an error for bad responses
+        return response.json()
+    else:
+        with open(filename, 'r') as file:
+            return json.load(file)
 
 def traverse_json(json_obj, path=""):  # Flattens the JSON into a list of tuples (path, key, value_type).
     tree_list = []
@@ -59,7 +65,7 @@ def navigate_tree(tree_list, current_index, key):
     return current_index
 
 def main():
-    json_data = load_json_file('C:\\Users\\default\\Desktop\\data.json')
+    json_data = load_json_file('https://raw.githubusercontent.com/json-api/json-api/refs/heads/gh-pages/package.json')
     tree_list = traverse_json(json_data)
     current_index = 0
     while True:
